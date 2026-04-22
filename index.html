@@ -162,6 +162,11 @@ body{font-family:'Barlow',sans-serif;background:var(--negro);min-height:100vh;di
 
 <script>
 const WA='34643199580';
+const N8N='https://whitemoon.app.n8n.cloud/webhook/chatbot-concesionario';
+
+function sendToN8N(data){
+  fetch(N8N,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(function(){});
+}
 let calY,calM,citaFecha='',servicioActual='';
 
 const flujos={
@@ -373,6 +378,17 @@ function submitLead(){
   document.querySelector('.lead-form')?.closest('div')?.remove();
   addUser(n+' '+a+' · '+t);
   var waText=encodeURIComponent('Nuevo lead: '+n+' '+a+' Tel:'+t+' Interes:'+servicioActual+(citaFecha?' Visita:'+citaFecha:'')+(comprarData.tipo?' Tipo:'+comprarData.tipo:'')+(comprarData.precio?' Presupuesto:'+comprarData.precio:''));
+  sendToN8N({
+    Fecha_Registro: new Date().toLocaleString('es-ES'),
+    Nombre: n,
+    Apellidos: a,
+    Telefono: t,
+    Interes: servicioActual||'Consulta general',
+    Tipo_Coche: comprarData.tipo||'',
+    Presupuesto: comprarData.precio||'',
+    Fecha_Visita: citaFecha||'',
+    Estado: 'Pendiente'
+  });
   citaFecha='';comprarData={};comprarStep=0;
   addTyping();
   setTimeout(function(){
